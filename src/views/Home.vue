@@ -11,7 +11,7 @@
         </el-col>
         <el-col class="right-exit" :span="4">
           <div class="grid-content bg-purple">
-            <a href="javascript:;">
+            <a href="javascript:;" @click.prevent="logout">
               <i class="el-icon-remove"></i>
               退出登录
             </a>
@@ -94,6 +94,18 @@ export default {
     setCollapse() {
       this.isCollapse = !this.isCollapse;
     },
+    logout() {
+      this.$router.push('/login')
+    }
+  },
+  // 进入首页的验证
+  beforeCreate() {
+    // 获取token
+    const token = localStorage.getItem('token')
+    // 如果有token，继续渲染组件
+    if (!token) {
+      this.$router.push('/login')
+    }
   },
 };
 </script>
