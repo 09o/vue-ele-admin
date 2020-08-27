@@ -2,13 +2,12 @@
   <el-container class="container">
     <el-header class="header">
       <el-row>
-        <el-col :span="4">
-          <div class="grid-content bg-purple logo">
-            <img src="../assets/logo.png" alt />
-          </div>
+        <el-col class="left-logo" :span="6">
+          <img src="../assets/logo.png" alt />
+          <i :class="isCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'" @click="setCollapse"></i>
         </el-col>
-        <el-col class="middle-title" :span="16">
-          <h3>Vemanage后台管理系统</h3>
+        <el-col class="middle-title" :span="14">
+          <h3>Ve后台管理系统</h3>
         </el-col>
         <el-col class="right-exit" :span="4">
           <div class="grid-content bg-purple">
@@ -21,14 +20,82 @@
       </el-row>
     </el-header>
     <el-container>
-      <el-aside width="200px" class="aside">Aside</el-aside>
+      <el-aside :width="isCollapse ? 'auto' : '200px'" class="aside">
+        <el-menu
+          default-active="1-4-1"
+          class="el-menu-vertical-demo"
+          :collapse="isCollapse"
+          background-color="#eee"
+          text-color="#333"
+          unique-opened
+        >
+          <el-submenu index="1">
+            <template slot="title">
+              <i class="el-icon-user-solid"></i>
+              <span slot="title">用户管理</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="1-1">用户列表</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+          <el-submenu index="2">
+            <template slot="title">
+              <i class="el-icon-error"></i>
+              <span slot="title">权限管理</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="2-1">人员列表</el-menu-item>
+              <el-menu-item index="2-2">权限列表</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu><el-submenu index="3">
+            <template slot="title">
+              <i class="el-icon-s-goods"></i>
+              <span slot="title">商品管理</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="3-1">商品列表</el-menu-item>
+              <el-menu-item index="3-2">分类参数</el-menu-item>
+              <el-menu-item index="3-3">商品分类</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+          <el-submenu index="4">
+            <template slot="title">
+              <i class="el-icon-s-order"></i>
+              <span slot="title">订单管理</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="4-1">订单列表</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+          <el-submenu index="5">
+            <template slot="title">
+              <i class="el-icon-s-data"></i>
+              <span slot="title">数据统计</span>
+            </template>
+            <el-menu-item-group>
+              <el-menu-item index="5-1">统计信息</el-menu-item>
+            </el-menu-item-group>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
       <el-main class="main">Main</el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      isCollapse: false,
+    };
+  },
+  methods: {
+    setCollapse() {
+      this.isCollapse = !this.isCollapse;
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -38,41 +105,64 @@ export default {};
   .header {
     background-color: #333;
     color: #eee;
+    height: 60px;
+    line-height: 60px;
+    padding-right: 0;
 
-    .el-row {
-      height: 100%;
+    .left-logo {
+      height: 60px;
+      display: flex;
+      align-items: center;
 
-      .el-col {
-        height: 100%;
-        display: flex;
-        align-items: center;
+      img {
+        height: 30px;
+        margin-right: 10px;
+      }
 
-        &.middle-title {
-          justify-content: center;
-        }
+      i {
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 60px;
+        padding: 0 20px;
 
-        &.right-exit {
-          justify-content: flex-end;
-          
-          a {
-            color: #eee;
-            text-decoration: none;
-
-            i {
-              color: #b44f4f;
-            }
-          }
+        &:hover {
+          background: #3d3c3c;
         }
       }
     }
 
-    img {
-      width: 100%;
+    .middle-title {
+      text-align: center;
+    }
+
+    .right-exit {
+      display: flex;
+      justify-content: flex-end;
+      a {
+        display: block;
+        min-width: 120px;
+        line-height: 60px;
+        color: #eee;
+        text-decoration: none;
+        text-align: center;
+
+        &:hover {
+          background: #3d3c3c;
+        }
+      }
     }
   }
 
   .aside {
-    background-color: #999;
+    background-color: #eee;
+
+    .el-menu {
+      border-right: none;
+
+      i {
+        color: #333 !important;
+      }
+    }
   }
 
   .main {
