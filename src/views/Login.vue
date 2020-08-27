@@ -41,14 +41,17 @@ export default {
         data,
         meta: { msg, status },
       } = res.data;
-      // 登录成功：保存token，跳转home
       if (status === 200) {
+        // 登录成功：
+        // 保存token
+        localStorage.setItem('token', data.token)
+        // 提示信息，跳转home
         this.$message.success(msg);
         setTimeout(() => {
           this.$router.push("/");
         }, 1500);
-      // 登录失败，提示信息
       } else {
+        // 登录失败，提示信息
         this.$message.error(msg);
       }
     },
