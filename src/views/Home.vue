@@ -47,7 +47,8 @@
               <el-menu-item index="2-1">人员列表</el-menu-item>
               <el-menu-item index="2-2">权限列表</el-menu-item>
             </el-menu-item-group>
-          </el-submenu><el-submenu index="3">
+          </el-submenu>
+          <el-submenu index="3">
             <template slot="title">
               <i class="el-icon-s-goods"></i>
               <span slot="title">商品管理</span>
@@ -94,17 +95,28 @@ export default {
     setCollapse() {
       this.isCollapse = !this.isCollapse;
     },
+    // 退出登录
     logout() {
-      this.$router.push('/login')
-    }
+      // 清除token
+      localStorage.removeItem("token");
+      // 提示信息
+      this.$message({
+        message: '退出成功',
+        type: 'success',
+        duration: 1500
+      });
+      setTimeout(() => {
+        this.$router.push("/login");
+      }, 1000);
+    },
   },
   // 进入首页的验证
   beforeCreate() {
     // 获取token
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
     // 如果有token，继续渲染组件
     if (!token) {
-      this.$router.push('/login')
+      this.$router.push("/login");
     }
   },
 };
