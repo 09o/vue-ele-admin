@@ -18,13 +18,29 @@
             <el-button @click="searchUsers" slot="append" icon="el-icon-search"></el-button>
           </el-input>
           <el-button type="info" @click="dialogFormVisible = true">添加用户</el-button>
-          <el-dialog title="用户添加" :visible.sync="dialogFormVisible" width="500px">
-            <el-form label-position="right" label-width="80px" :model="newUser" :rules="rules" ref="newUser">
+          <el-dialog
+            title="用户添加"
+            @close="clearForm('newUser')"
+            :visible.sync="dialogFormVisible"
+            width="500px"
+          >
+            <el-form
+              label-position="right"
+              label-width="80px"
+              :model="newUser"
+              :rules="rules"
+              ref="newUser"
+            >
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="newUser.username" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="密码" prop="password">
-                <el-input type="password" show-password v-model="newUser.password" autocomplete="off"></el-input>
+                <el-input
+                  type="password"
+                  show-password
+                  v-model="newUser.password"
+                  autocomplete="off"
+                ></el-input>
               </el-form-item>
               <el-form-item label="邮箱">
                 <el-input v-model="newUser.email" autocomplete="new-password"></el-input>
@@ -35,7 +51,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
               <el-button @click="dialogFormVisible = false">取 消</el-button>
-              <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+              <el-button type="primary" @click="addUser">确 定</el-button>
             </div>
           </el-dialog>
         </el-col>
@@ -111,27 +127,27 @@ export default {
         username: [
           {
             required: true,
-            message: '请输入用户名',
-            trigger: 'blur',
+            message: "请输入用户名",
+            trigger: "blur",
           },
           {
             min: 3,
             max: 12,
-            message: '长度在 3 到 12个字符',
-            trigger: 'blur',
+            message: "长度在 3 到 12个字符",
+            trigger: "blur",
           },
         ],
         password: [
           {
             required: true,
-            message: '请输入密码',
-            trigger: 'blur',
+            message: "请输入密码",
+            trigger: "blur",
           },
           {
             min: 6,
             max: 16,
-            message: '长度在 6 到 16个字符',
-            trigger: 'blur',
+            message: "长度在 6 到 16个字符",
+            trigger: "blur",
           },
         ],
       },
@@ -176,11 +192,41 @@ export default {
     handleCurrentChange(val) {
       this.getUsersList();
     },
+    // 搜索功能
     loadUsers() {
       this.getUsersList();
     },
     searchUsers() {
       this.getUsersList();
+    },
+    // 关闭窗口后清空表单内容
+    clearForm(formName) {
+      // this.newUser = {
+      //   username: "",
+      //   password: "",
+      //   email: "",
+      //   mobile: "",
+      // }
+      // for (const key in this.newUser) {
+      //   if (this.newUser.hasOwnProperty(key)) {
+      //     this.newUser[key] = ''
+      //   }
+      // }
+      this.$refs[formName].resetFields()
+    },
+    // 添加用户提交
+    async addUser() {
+      this.dialogFormVisible = false;
+      const res = await this.$http.post("users", this.newUser);
+      // console.log(res);
+      const { 
+        meta: { mst, status },
+        data
+      } = res.data
+      if (status === 201) {
+        this.$message.success('添加成功')
+        this.getUsersList()
+      }
     },
   },
   created() {
