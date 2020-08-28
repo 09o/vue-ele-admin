@@ -7,7 +7,13 @@ const router = new VueRouter({
     {
       path: '/',
       meta: { title: '首页' },
-      component: () => import('../views/Home')
+      component: () => import('../views/Home'),
+      children: [
+        {
+          path: 'users',
+          component: () => import('../components/users/User')
+        }
+      ]
     },
     {
       path: '/login',
