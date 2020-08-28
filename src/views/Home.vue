@@ -193,7 +193,7 @@ export default {
   }
 
   .main {
-    background-color: #ccc;
+    background-color: #dfdfdf;
   }
 }
 </style>
