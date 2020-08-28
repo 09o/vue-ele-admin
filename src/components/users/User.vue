@@ -22,16 +22,23 @@
         <!-- 使用过滤器来处理时间的格式 -->
         <!-- template内部要使用数据 设置slot-scope属性
              该属性的值为要使用数据的源数据
-         -->
+             slot-scope属性中的值会自动匹配源数据
+        -->
         <!-- 
           userList.row 数组中的每个对象
         -->
         <el-table-column label="创建时间">
-          <template slot-scope="userList">
-            {{ userList.row.create_time | fmtDate }}
+          <template slot-scope="scope">{{ scope.row.create_time | fmtDate }}</template>
+        </el-table-column>
+        <el-table-column label="用户状态">
+          <template slot-scope="scope">
+            <el-switch 
+            v-model="scope.row.mg_state" 
+            active-color="#13ce66" 
+            inactive-color="#ff4949">
+            </el-switch>
           </template>
         </el-table-column>
-        <el-table-column prop="mg_state" label="用户状态"></el-table-column>
         <el-table-column prop="role_name" label="操作"></el-table-column>
       </el-table>
     </div>
