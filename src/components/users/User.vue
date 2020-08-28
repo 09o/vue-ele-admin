@@ -8,8 +8,8 @@
       </el-breadcrumb>
       <el-row class="searchRow">
         <el-col>
-          <el-input placeholder="查找用户" v-model="query" class="inputSearch">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input @clear="loadUsers" clearable placeholder="查找用户" v-model="query" class="inputSearch">
+            <el-button @click="searchUsers" slot="append" icon="el-icon-search"></el-button>
           </el-input>
           <el-button type="info">添加用户</el-button>
         </el-col>
@@ -101,17 +101,23 @@ export default {
         data: { total, users },
       } = res.data;
       if (status === 200) {
-        this.$message({
-          message: msg,
-          type: "success",
-          duration: 1000,
-        });
+        // this.$message({
+        //   message: msg,
+        //   type: "success",
+        //   duration: 1000,
+        // });
         this.total = total
         this.userList = users;
       }
     },
     // 页码改变时触发
     handleCurrentChange(val) {
+      this.getUsersList()
+    },
+    loadUsers() {
+      this.getUsersList()
+    },
+    searchUsers() {
       this.getUsersList()
     }
   },
