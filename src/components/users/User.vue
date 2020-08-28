@@ -19,7 +19,18 @@
         <el-table-column prop="username" label="用户名"></el-table-column>
         <el-table-column prop="email" label="邮箱"></el-table-column>
         <el-table-column prop="mobile" label="电话"></el-table-column>
-        <el-table-column prop="create_time" label="创建时间"></el-table-column>
+        <!-- 使用过滤器来处理时间的格式 -->
+        <!-- template内部要使用数据 设置slot-scope属性
+             该属性的值为要使用数据的源数据
+         -->
+        <!-- 
+          userList.row 数组中的每个对象
+        -->
+        <el-table-column label="创建时间">
+          <template slot-scope="userList">
+            {{ userList.row.create_time | fmtDate }}
+          </template>
+        </el-table-column>
         <el-table-column prop="mg_state" label="用户状态"></el-table-column>
         <el-table-column prop="role_name" label="操作"></el-table-column>
       </el-table>
@@ -35,22 +46,23 @@ export default {
       pagenum: 1,
       pagesize: 5,
       total: 0,
-      userList: []
+      userList: [],
     };
   },
   methods: {
-// | 参数名   | 参数说明     | 备注     |
-// | -------- | ------------ | -------- |
-// | query    | 查询参数     | 可以为空 |
-// | pagenum  | 当前页码     | 不能为空 |
-// | pagesize | 每页显示条数 | 不能为空 |
     async getUsersList() {
       // 需要授权的 API ，必须在请求头中使用 `Authorization` 字段提供 `token` 令牌
-      const AUTH_TOKEN = localStorage.getItem('token')
+      const AUTH_TOKEN = localStorage.getItem("token");
       // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
-      this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
-
-      const res = await this.$http.get(`users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
+      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      // | 参数名   | 参数说明     | 备注    |
+      // | -------- | ------------| ------- |
+      // | query    | 查询参数     | 可以为空 |
+      // | pagenum  | 当前页码     | 不能为空 |
+      // | pagesize | 每页显示条数 | 不能为空 |
+      const res = await this.$http.get(
+        `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`
+      );
       // id: 500
       // username: "admin"
       // email: "adsfad@qq.com"
@@ -60,20 +72,20 @@ export default {
       // role_name: "超级管理员"
       const {
         meta: { msg, status },
-        data: { total, users }
-      } = res.data
+        data: { total, users },
+      } = res.data;
       if (status === 200) {
         this.$message({
           message: msg,
-          type: 'success',
-          duration: 1000
-        })
-        this.userList = users
+          type: "success",
+          duration: 1000,
+        });
+        this.userList = users;
       }
-    }
+    },
   },
   created() {
-    this.getUsersList()
+    this.getUsersList();
   },
 };
 </script>
