@@ -8,10 +8,36 @@
       </el-breadcrumb>
       <el-row class="searchRow">
         <el-col>
-          <el-input @clear="loadUsers" clearable placeholder="查找用户" v-model="query" class="inputSearch">
+          <el-input
+            @clear="loadUsers"
+            clearable
+            placeholder="查找用户"
+            v-model="query"
+            class="inputSearch"
+          >
             <el-button @click="searchUsers" slot="append" icon="el-icon-search"></el-button>
           </el-input>
-          <el-button type="info">添加用户</el-button>
+          <el-button type="info" @click="dialogFormVisible = true">添加用户</el-button>
+          <el-dialog title="用户添加" :visible.sync="dialogFormVisible" width="500px">
+            <el-form label-position="right" label-width="80px" :model="newUser" :rules="rules" ref="newUser">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="newUser.username" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="密码" prop="password">
+                <el-input type="password" show-password v-model="newUser.password" autocomplete="off"></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱">
+                <el-input v-model="newUser.email" autocomplete="new-password"></el-input>
+              </el-form-item>
+              <el-form-item label="电话">
+                <el-input v-model="newUser.mobile" autocomplete="new-password"></el-input>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            </div>
+          </el-dialog>
         </el-col>
       </el-row>
       <el-table :data="userList" style="width: 100%">
@@ -51,15 +77,15 @@
       </el-table>
       <!-- 
         当一个子组件改变了一个带 .sync 的 prop 的值时，
-        这个变化也会同步到父组件中所绑定的值 -->
+      这个变化也会同步到父组件中所绑定的值-->
       <el-pagination
         class="pagination"
         @current-change="handleCurrentChange"
         :current-page.sync="pagenum"
         :page-size="pagesize"
         layout="total, prev, pager, next, jumper"
-        :total="total">
-      </el-pagination>
+        :total="total"
+      ></el-pagination>
     </div>
   </el-card>
 </template>
@@ -73,6 +99,42 @@ export default {
       pagesize: 5,
       total: 0,
       userList: [],
+      newUser: {
+        username: "",
+        password: "",
+        email: "",
+        mobile: "",
+      },
+      dialogFormVisible: false,
+      // 用于新增用户表单的验证
+      rules: {
+        username: [
+          {
+            required: true,
+            message: '请输入用户名',
+            trigger: 'blur',
+          },
+          {
+            min: 3,
+            max: 12,
+            message: '长度在 3 到 12个字符',
+            trigger: 'blur',
+          },
+        ],
+        password: [
+          {
+            required: true,
+            message: '请输入密码',
+            trigger: 'blur',
+          },
+          {
+            min: 6,
+            max: 16,
+            message: '长度在 6 到 16个字符',
+            trigger: 'blur',
+          },
+        ],
+      },
     };
   },
   methods: {
@@ -106,20 +168,20 @@ export default {
         //   type: "success",
         //   duration: 1000,
         // });
-        this.total = total
+        this.total = total;
         this.userList = users;
       }
     },
     // 页码改变时触发
     handleCurrentChange(val) {
-      this.getUsersList()
+      this.getUsersList();
     },
     loadUsers() {
-      this.getUsersList()
+      this.getUsersList();
     },
     searchUsers() {
-      this.getUsersList()
-    }
+      this.getUsersList();
+    },
   },
   created() {
     this.getUsersList();
