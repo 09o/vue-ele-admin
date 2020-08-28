@@ -16,7 +16,7 @@
       </el-row>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="index" label="#" width="50"></el-table-column>
-        <el-table-column prop="name" label="姓名"></el-table-column>
+        <el-table-column prop="name" label="用户名"></el-table-column>
         <el-table-column prop="name" label="邮箱"></el-table-column>
         <el-table-column prop="name" label="电话"></el-table-column>
         <el-table-column prop="name" label="创建时间"></el-table-column>
@@ -32,6 +32,8 @@ export default {
   data() {
     return {
       query: "",
+      pagenum: 1,
+      pagesize: 5,
       tableData: [
         {
           date: "2016-05-02",
@@ -45,6 +47,26 @@ export default {
         }
       ],
     };
+  },
+  methods: {
+// | 参数名   | 参数说明     | 备注     |
+// | -------- | ------------ | -------- |
+// | query    | 查询参数     | 可以为空 |
+// | pagenum  | 当前页码     | 不能为空 |
+// | pagesize | 每页显示条数 | 不能为空 |
+    async getUsersList() {
+
+      // 需要授权的 API ，必须在请求头中使用 `Authorization` 字段提供 `token` 令牌
+      const AUTH_TOKEN = localStorage.getItem('token')
+      // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+      this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
+
+      const res = await this.$http.get(`users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
+      console.log(res)
+    }
+  },
+  created() {
+    this.getUsersList()
   },
 };
 </script>
