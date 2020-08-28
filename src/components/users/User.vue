@@ -37,12 +37,29 @@
         </el-table-column>
         <el-table-column label="操作">
           <template>
-            <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
-            <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
-            <el-button size="mini" plain type="danger" icon="el-icon-delete" circle></el-button>
+            <el-tooltip content="查看" placement="top">
+              <el-button size="mini" plain type="success" icon="el-icon-view" circle></el-button>
+            </el-tooltip>
+            <el-tooltip content="修改" placement="top">
+              <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+            </el-tooltip>
+            <el-tooltip content="删除" placement="top">
+              <el-button size="mini" plain type="danger" icon="el-icon-delete" circle></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
+      <!-- 
+        当一个子组件改变了一个带 .sync 的 prop 的值时，
+        这个变化也会同步到父组件中所绑定的值 -->
+      <el-pagination
+        class="pagination"
+        @current-change="handleCurrentChange"
+        :current-page.sync="pagenum"
+        :page-size="pagesize"
+        layout="total, prev, pager, next, jumper"
+        :total="total">
+      </el-pagination>
     </div>
   </el-card>
 </template>
@@ -89,9 +106,14 @@ export default {
           type: "success",
           duration: 1000,
         });
+        this.total = total
         this.userList = users;
       }
     },
+    // 页码改变时触发
+    handleCurrentChange(val) {
+      this.getUsersList()
+    }
   },
   created() {
     this.getUsersList();
@@ -108,5 +130,10 @@ export default {
 }
 .box-card {
   height: 100%;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 0;
 }
 </style>
