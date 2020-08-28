@@ -32,14 +32,16 @@
         </el-table-column>
         <el-table-column label="用户状态">
           <template slot-scope="scope">
-            <el-switch 
-            v-model="scope.row.mg_state" 
-            active-color="#13ce66" 
-            inactive-color="#ff4949">
-            </el-switch>
+            <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </template>
         </el-table-column>
-        <el-table-column prop="role_name" label="操作"></el-table-column>
+        <el-table-column label="操作">
+          <template>
+            <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+            <el-button size="mini" plain type="danger" icon="el-icon-delete" circle></el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </el-card>
