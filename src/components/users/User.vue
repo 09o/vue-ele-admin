@@ -29,8 +29,6 @@
               label-position="right"
               label-width="80px"
               :model="userForm"
-              :rules="rules"
-              ref="userForm"
             >
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="userForm.username" autocomplete="off"></el-input>
@@ -75,14 +73,19 @@
         </el-table-column>
         <el-table-column label="用户状态">
           <template slot-scope="scope">
-            <el-switch @change="changeMgState(scope.row)" v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-switch
+              @change="changeMgState(scope.row)"
+              v-model="scope.row.mg_state"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            ></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-tooltip content="查看" placement="top">
               <el-button
-                @click="previewTheUser($event)"
+                @click="previewTheUser($event, scope.row)"
                 size="mini"
                 plain
                 type="success"
@@ -112,8 +115,47 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <!-- 编辑用户对话框 -->
       </el-table>
+      <!-- 查看用户 -->
+      <el-dialog
+        @close="clearForm('userForm')"
+        title="用户信息"
+        :visible.sync="dialogFormVisiblePreview"
+        width="500px"
+      >
+        <el-form label-position="left" label-width="120px" :model="userForm">
+          <el-form-item label="用户id">
+            <template>{{ userForm.id }}</template>
+          </el-form-item>
+          <el-form-item label="用户名">
+            <template>{{ userForm.username }}</template>
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <template>{{ userForm.email }}</template>
+          </el-form-item>
+          <el-form-item label="电话">
+            <template>{{ userForm.mobile }}</template>
+          </el-form-item>
+          <el-form-item label="创建时间">
+            <template>{{ userForm.create_time | fmtDate }}</template>
+          </el-form-item>
+          <el-form-item label="用户状态">
+            <el-switch
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              v-model="userForm.mg_state"
+              disabled
+            ></el-switch>
+          </el-form-item>
+          <el-form-item label="权限信息">
+            <template>{{ userForm.role_name }}</template>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="success" @click="dialogFormVisiblePreview = false">关 闭</el-button>
+        </div>
+      </el-dialog>
+      <!-- 编辑用户对话框 -->
       <el-dialog
         title="编辑用户"
         @close="clearForm('userForm')"
@@ -124,8 +166,6 @@
           label-position="right"
           label-width="80px"
           :model="userForm"
-          :rules="rules"
-          ref="userForm"
         >
           <el-form-item label="用户名" prop="username">
             <el-input disabled v-model="userForm.username" autocomplete="off"></el-input>
@@ -174,36 +214,37 @@ export default {
         mobile: "",
       },
       dialogFormVisibleAdd: false,
+      dialogFormVisiblePreview: false,
       dialogFormVisibleEdit: false,
       // 用于新增用户表单格式的验证
-      rules: {
-        username: [
-          {
-            required: true,
-            message: "请输入用户名",
-            trigger: "blur",
-          },
-          {
-            min: 3,
-            max: 12,
-            message: "长度在 3 到 12个字符",
-            trigger: "blur",
-          },
-        ],
-        password: [
-          {
-            required: true,
-            message: "请输入密码",
-            trigger: "blur",
-          },
-          {
-            min: 6,
-            max: 16,
-            message: "长度在 6 到 16个字符",
-            trigger: "blur",
-          },
-        ],
-      },
+      // rules: {
+      //   username: [
+      //     {
+      //       required: true,
+      //       message: "请输入用户名",
+      //       trigger: "blur",
+      //     },
+      //     {
+      //       min: 3,
+      //       max: 12,
+      //       message: "长度在 3 到 12个字符",
+      //       trigger: "blur",
+      //     },
+      //   ],
+      //   password: [
+      //     {
+      //       required: true,
+      //       message: "请输入密码",
+      //       trigger: "blur",
+      //     },
+      //     {
+      //       min: 6,
+      //       max: 16,
+      //       message: "长度在 6 到 16个字符",
+      //       trigger: "blur",
+      //     },
+      //   ],
+      // },
     };
   },
   methods: {
@@ -255,13 +296,6 @@ export default {
     },
     // 关闭表单对话框后清空表单内容
     clearForm(formName) {
-      // this.userForm = {
-      //   username: "",
-      //   password: "",
-      //   email: "",
-      //   mobile: "",
-      // }
-      this.$refs[formName].resetFields();
       for (let key in this.userForm) {
         if (this.userForm.hasOwnProperty(key)) {
           this.userForm[key] = "";
@@ -286,11 +320,13 @@ export default {
     },
     // 修改用户状态
     async changeMgState(user) {
-      await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+      await this.$http.put(`users/${user.id}/state/${user.mg_state}`);
     },
     // 预览用户信息
-    previewTheUser(e) {
+    previewTheUser(e, user) {
       this.btnBlur(e);
+      this.dialogFormVisiblePreview = true;
+      this.userForm = { ...user };
     },
     // 打开编辑用户信息框
     editTheUser(e, user) {
