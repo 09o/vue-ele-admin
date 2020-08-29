@@ -18,6 +18,7 @@
             <el-button @click="searchUsers" slot="append" icon="el-icon-search"></el-button>
           </el-input>
           <el-button type="info" @click="dialogFormVisible = true">添加用户</el-button>
+          <!-- 新增用户对话框 -->
           <el-dialog
             title="用户添加"
             @close="clearForm('newUser')"
@@ -78,15 +79,22 @@
           </template>
         </el-table-column>
         <el-table-column label="操作">
-          <template>
+          <template slot-scope="scope">
             <el-tooltip content="查看" placement="top">
               <el-button size="mini" plain type="success" icon="el-icon-view" circle></el-button>
             </el-tooltip>
             <el-tooltip content="修改" placement="top">
-              <el-button size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+              <el-button @click="editTheUser($event)" size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button size="mini" plain type="danger" icon="el-icon-delete" circle></el-button>
+              <el-button
+                @click="deleteTheUser($event, scope.row.id)"
+                size="mini"
+                plain
+                type="danger"
+                icon="el-icon-delete"
+                circle
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -122,7 +130,7 @@ export default {
         mobile: "",
       },
       dialogFormVisible: false,
-      // 用于新增用户表单的验证
+      // 用于新增用户表单格式的验证
       rules: {
         username: [
           {
@@ -154,6 +162,7 @@ export default {
     };
   },
   methods: {
+    // 获取列表数据
     async getUsersList() {
       // 需要授权的 API ，必须在请求头中使用 `Authorization` 字段提供 `token` 令牌
       const AUTH_TOKEN = localStorage.getItem("token");
@@ -188,18 +197,18 @@ export default {
         this.userList = users;
       }
     },
-    // 页码改变时触发
+    // 页码改变时重新获取列表数据
     handleCurrentChange(val) {
       this.getUsersList();
     },
-    // 搜索功能
+    // 列表搜索功能
     loadUsers() {
       this.getUsersList();
     },
     searchUsers() {
       this.getUsersList();
     },
-    // 关闭窗口后清空表单内容
+    // 关闭表单对话框后清空表单内容
     clearForm(formName) {
       // this.newUser = {
       //   username: "",
@@ -207,27 +216,73 @@ export default {
       //   email: "",
       //   mobile: "",
       // }
-      // for (const key in this.newUser) {
-      //   if (this.newUser.hasOwnProperty(key)) {
-      //     this.newUser[key] = ''
-      //   }
-      // }
-      this.$refs[formName].resetFields()
+      for (const key in this.newUser) {
+        if (this.newUser.hasOwnProperty(key)) {
+          this.newUser[key] = "";
+        }
+      }
+      this.$refs[formName].resetFields();
     },
     // 添加用户提交
     async addUser() {
       this.dialogFormVisible = false;
       const res = await this.$http.post("users", this.newUser);
       // console.log(res);
-      const { 
-        meta: { mst, status },
-        data
-      } = res.data
+      const {
+        meta: { msg, status },
+        data,
+      } = res.data;
       if (status === 201) {
-        this.$message.success('添加成功')
-        this.getUsersList()
+        this.$message.success(msg);
+        this.getUsersList();
+      } else {
+        this.$message.warning(msg);
       }
     },
+    // 编辑用户信息
+    editTheUser(e) {
+      this.btnBlur(e)
+    },
+    // 删除用户选项
+    deleteTheUser(e, userId) {
+      // 点击按钮后失去焦点
+      this.btnBlur(e)
+      this.$confirm("确定删除该用户？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          // 发送删除请求
+          const res = await this.$http.delete(`users/${userId}`);
+          const {
+            meta: { status, msg },
+          } = res.data;
+          if (status === 200) {
+            this.getUsersList();
+            this.$message({
+              type: "success",
+              message: msg,
+              duration: 1000,
+            });
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+            duration: 500,
+          });
+        });
+    },
+    // 点击button后让其失去焦点
+    btnBlur(e) {
+      let target = e.target
+      if (target.nodeName == 'I') {
+        target = e.target.parentNode
+      }
+      target.blur()
+    }
   },
   created() {
     this.getUsersList();
