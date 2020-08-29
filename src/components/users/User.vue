@@ -17,41 +17,41 @@
           >
             <el-button @click="searchUsers" slot="append" icon="el-icon-search"></el-button>
           </el-input>
-          <el-button type="info" @click="dialogFormVisible = true">添加用户</el-button>
+          <el-button type="info" @click="dialogFormVisibleAdd = true">添加用户</el-button>
           <!-- 新增用户对话框 -->
           <el-dialog
             title="用户添加"
-            @close="clearForm('newUser')"
-            :visible.sync="dialogFormVisible"
+            @close="clearForm('userForm')"
+            :visible.sync="dialogFormVisibleAdd"
             width="500px"
           >
             <el-form
               label-position="right"
               label-width="80px"
-              :model="newUser"
+              :model="userForm"
               :rules="rules"
-              ref="newUser"
+              ref="userForm"
             >
               <el-form-item label="用户名" prop="username">
-                <el-input v-model="newUser.username" autocomplete="off"></el-input>
+                <el-input v-model="userForm.username" autocomplete="off"></el-input>
               </el-form-item>
               <el-form-item label="密码" prop="password">
                 <el-input
                   type="password"
                   show-password
-                  v-model="newUser.password"
+                  v-model="userForm.password"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
               <el-form-item label="邮箱">
-                <el-input v-model="newUser.email" autocomplete="new-password"></el-input>
+                <el-input v-model="userForm.email" autocomplete="new-password"></el-input>
               </el-form-item>
               <el-form-item label="电话">
-                <el-input v-model="newUser.mobile" autocomplete="new-password"></el-input>
+                <el-input v-model="userForm.mobile" autocomplete="new-password"></el-input>
               </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
               <el-button type="primary" @click="addUser">确 定</el-button>
             </div>
           </el-dialog>
@@ -81,10 +81,24 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-tooltip content="查看" placement="top">
-              <el-button size="mini" plain type="success" icon="el-icon-view" circle></el-button>
+              <el-button
+                @click="previewTheUser($event)"
+                size="mini"
+                plain
+                type="success"
+                icon="el-icon-view"
+                circle
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="修改" placement="top">
-              <el-button @click="editTheUser($event)" size="mini" plain type="primary" icon="el-icon-edit" circle></el-button>
+              <el-button
+                @click="editTheUser($event, scope.row)"
+                size="mini"
+                plain
+                type="primary"
+                icon="el-icon-edit"
+                circle
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
               <el-button
@@ -98,7 +112,36 @@
             </el-tooltip>
           </template>
         </el-table-column>
+        <!-- 编辑用户对话框 -->
       </el-table>
+      <el-dialog
+        title="编辑用户"
+        @close="clearForm('userForm')"
+        :visible.sync="dialogFormVisibleEdit"
+        width="500px"
+      >
+        <el-form
+          label-position="right"
+          label-width="80px"
+          :model="userForm"
+          :rules="rules"
+          ref="userForm"
+        >
+          <el-form-item label="用户名" prop="username">
+            <el-input disabled v-model="userForm.username" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱">
+            <el-input v-model="userForm.email" autocomplete="new-password"></el-input>
+          </el-form-item>
+          <el-form-item label="电话">
+            <el-input v-model="userForm.mobile" autocomplete="new-password"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
+          <el-button type="primary" @click="submitEditUser(userForm.id)">确 定</el-button>
+        </div>
+      </el-dialog>
       <!-- 
         当一个子组件改变了一个带 .sync 的 prop 的值时，
       这个变化也会同步到父组件中所绑定的值-->
@@ -123,13 +166,15 @@ export default {
       pagesize: 5,
       total: 0,
       userList: [],
-      newUser: {
+      userForm: {
+        id: -1,
         username: "",
         password: "",
         email: "",
         mobile: "",
       },
-      dialogFormVisible: false,
+      dialogFormVisibleAdd: false,
+      dialogFormVisibleEdit: false,
       // 用于新增用户表单格式的验证
       rules: {
         username: [
@@ -210,23 +255,23 @@ export default {
     },
     // 关闭表单对话框后清空表单内容
     clearForm(formName) {
-      // this.newUser = {
+      // this.userForm = {
       //   username: "",
       //   password: "",
       //   email: "",
       //   mobile: "",
       // }
-      for (const key in this.newUser) {
-        if (this.newUser.hasOwnProperty(key)) {
-          this.newUser[key] = "";
+      this.$refs[formName].resetFields();
+      for (let key in this.userForm) {
+        if (this.userForm.hasOwnProperty(key)) {
+          this.userForm[key] = "";
         }
       }
-      this.$refs[formName].resetFields();
     },
     // 添加用户提交
     async addUser() {
-      this.dialogFormVisible = false;
-      const res = await this.$http.post("users", this.newUser);
+      this.dialogFormVisibleAdd = false;
+      const res = await this.$http.post("users", this.userForm);
       // console.log(res);
       const {
         meta: { msg, status },
@@ -239,14 +284,43 @@ export default {
         this.$message.warning(msg);
       }
     },
-    // 编辑用户信息
-    editTheUser(e) {
-      this.btnBlur(e)
+    // 预览用户信息
+    previewTheUser(e) {
+      this.btnBlur(e);
     },
-    // 删除用户选项
+    // 打开编辑用户信息框
+    editTheUser(e, user) {
+      this.btnBlur(e);
+      this.dialogFormVisibleEdit = true;
+      this.userForm = { ...user };
+      this.currentUserId = user.id;
+    },
+    // 提交编辑信息
+    async submitEditUser(userId) {
+      this.dialogFormVisibleEdit = false;
+      const res = await this.$http.put(`users/${userId}`, this.userForm);
+      const {
+        meta: { msg, status },
+      } = res.data;
+      if (status === 200) {
+        this.$message({
+          message: msg,
+          type: "success",
+          duration: 1000,
+        });
+        this.getUsersList();
+      } else {
+        this.$message({
+          message: msg,
+          type: "warning",
+          duration: 1000,
+        });
+      }
+    },
+    // 删除用户
     deleteTheUser(e, userId) {
       // 点击按钮后失去焦点
-      this.btnBlur(e)
+      this.btnBlur(e);
       this.$confirm("确定删除该用户？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -277,12 +351,12 @@ export default {
     },
     // 点击button后让其失去焦点
     btnBlur(e) {
-      let target = e.target
-      if (target.nodeName == 'I') {
-        target = e.target.parentNode
+      let target = e.target;
+      if (target.nodeName == "I") {
+        target = e.target.parentNode;
       }
-      target.blur()
-    }
+      target.blur();
+    },
   },
   created() {
     this.getUsersList();
