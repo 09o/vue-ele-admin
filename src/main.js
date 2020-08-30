@@ -5,6 +5,9 @@ import 'element-ui/lib/theme-chalk/index.css'
 import router from './router'
 import MyHttpServer from './plugins/http'
 import Moment from 'moment'
+// 将面包屑组件用于全局
+import MyBread from './components/custom/Bread'
+
 Vue.use(ElementUI)
 Vue.use(MyHttpServer)
 
@@ -16,6 +19,8 @@ Vue.filter('fmtDate', (val) => {
   // return new Date(val).toLocaleDateString()
   return Moment(val).format('YYYY-MM-DD')
 })
+
+Vue.component(MyBread.name , MyBread)
 
 new Vue({
   el: '#app',
