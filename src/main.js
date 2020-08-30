@@ -20,6 +20,11 @@ Vue.filter('fmtDate', (val) => {
   return Moment(val).format('YYYY-MM-DD')
 })
 
+// 处理权限层级
+Vue.filter('fmtLevel', (val) => {
+  return '一二三四五六七八九十'[parseInt(val)] + '级'
+})
+
 Vue.component(MyBread.name , MyBread)
 
 new Vue({

@@ -287,9 +287,9 @@ export default {
     // 获取列表数据
     async getUsersList() {
       // 需要授权的 API ，必须在请求头中使用 `Authorization` 字段提供 `token` 令牌
-      const AUTH_TOKEN = localStorage.getItem("token");
+      // const AUTH_TOKEN = localStorage.getItem("token");
       // axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      // this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       // | 参数名   | 参数说明     | 备注    |
       // | -------- | ------------| ------- |
       // | query    | 查询参数     | 可以为空 |
