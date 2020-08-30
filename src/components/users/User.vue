@@ -25,11 +25,7 @@
             :visible.sync="dialogFormVisibleAdd"
             width="500px"
           >
-            <el-form
-              label-position="right"
-              label-width="80px"
-              :model="userForm"
-            >
+            <el-form label-position="right" label-width="80px" :model="userForm">
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="userForm.username" autocomplete="off"></el-input>
               </el-form-item>
@@ -103,6 +99,16 @@
                 circle
               ></el-button>
             </el-tooltip>
+            <el-tooltip content="权限角色" placement="top">
+              <el-button
+                @click="assignPermission($event, scope.row)"
+                size="mini"
+                plain
+                type="warning"
+                icon="el-icon-check"
+                circle
+              ></el-button>
+            </el-tooltip>
             <el-tooltip content="删除" placement="top">
               <el-button
                 @click="deleteTheUser($event, scope.row.id)"
@@ -162,12 +168,8 @@
         :visible.sync="dialogFormVisibleEdit"
         width="500px"
       >
-        <el-form
-          label-position="right"
-          label-width="80px"
-          :model="userForm"
-        >
-          <el-form-item label="用户名" prop="username">
+        <el-form label-position="right" label-width="80px" :model="userForm">
+          <el-form-item label="用户名">
             <el-input disabled v-model="userForm.username" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="邮箱">
@@ -180,6 +182,33 @@
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
           <el-button type="primary" @click="submitEditUser(userForm.id)">确 定</el-button>
+        </div>
+      </el-dialog>
+      <!-- 分配角色权限 -->
+      <el-dialog
+        title="分配角色权限"
+        @close="clearForm('userForm')"
+        :visible.sync="dialogFormVisibleAssign"
+        width="500px"
+      >
+        <el-form label-position="right" label-width="80px">
+          <el-form-item label="用户名">{{ currentUsername }}</el-form-item>
+          <el-form-item label="用户权限">
+            <el-select v-model="currentRoleId">
+              <!-- 当新增用户未分配角色时执行此选项 -->
+              <el-option label="请选择" :value="-1"></el-option>
+              <el-option
+                v-for="item in roles"
+                :key="item.id"
+                :label="item.roleName"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisibleAssign = false">取 消</el-button>
+          <el-button type="primary" @click="submitAssign(currentUserId)">确 定</el-button>
         </div>
       </el-dialog>
       <!-- 
@@ -206,6 +235,9 @@ export default {
       pagesize: 5,
       total: 0,
       userList: [],
+      currentUsername: "",
+      currentRoleId: -1,
+      currentUserId: -1,
       userForm: {
         id: -1,
         username: "",
@@ -213,9 +245,12 @@ export default {
         email: "",
         mobile: "",
       },
+      roles: [],
+      value: "管理员",
       dialogFormVisibleAdd: false,
       dialogFormVisiblePreview: false,
       dialogFormVisibleEdit: false,
+      dialogFormVisibleAssign: false,
       // 用于新增用户表单格式的验证
       // rules: {
       //   username: [
@@ -282,6 +317,11 @@ export default {
         this.total = total;
         this.userList = users;
       }
+    },
+    // 获取角色列表
+    async getRolesList() {
+      const res = await this.$http.get("roles");
+      this.roles = res.data.data;
     },
     // 页码改变时重新获取列表数据
     handleCurrentChange(val) {
@@ -357,6 +397,25 @@ export default {
         });
       }
     },
+    // 获取分配角色权限相关信息
+    async assignPermission(e, user) {
+      this.btnBlur(e);
+      this.currentUsername = user.username;
+      this.currentUserId = user.id;
+      this.dialogFormVisibleAssign = true;
+      const res = await this.$http.get(`users/${user.id}`);
+      const {
+        data: { rid },
+      } = res.data;
+      this.currentRoleId = rid;
+    },
+    // 提交分配
+    submitAssign(uid) {
+      this.$http.put(`users/${uid}/role`, {
+        rid: this.currentRoleId
+      });
+      this.dialogFormVisibleAssign = false;
+    },
     // 删除用户
     deleteTheUser(e, userId) {
       // 点击按钮后失去焦点
@@ -400,6 +459,7 @@ export default {
   },
   created() {
     this.getUsersList();
+    this.getRolesList();
   },
 };
 </script>
