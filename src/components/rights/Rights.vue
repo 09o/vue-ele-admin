@@ -1,6 +1,6 @@
 <template>
   <el-card class="box-card">
-    <my-bread level1="权限管理" level2="管理列表"></my-bread>
+    <my-bread level1="权限管理" level2="权限列表"></my-bread>
     <el-table class="table" :data="rightsList" border max-height="500px" style="width: 100%;">
       <el-table-column type="index" label="#" width="50"></el-table-column>
       <el-table-column prop="authName" label="权限名称" width="180"></el-table-column>
@@ -24,7 +24,6 @@ export default {
   methods: {
     async getRightList() {
       const res = await this.$http.get("rights/list");
-      console.log(res);
       this.rightsList = res.data.data
     },
   },
@@ -35,9 +34,6 @@ export default {
 </script>
 
 <style scoped>
-.box-card {
-  height: 100%;
-}
 .table {
   margin-top: 10px;
 }

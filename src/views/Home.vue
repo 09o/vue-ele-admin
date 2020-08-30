@@ -45,7 +45,7 @@
               <span slot="title">权限管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item index="roles">管理列表</el-menu-item>
+              <el-menu-item index="roles">角色列表</el-menu-item>
               <el-menu-item index="rights">权限列表</el-menu-item>
             </el-menu-item-group>
           </el-submenu>

@@ -472,9 +472,6 @@ export default {
 .inputSearch {
   width: 300px;
 }
-.box-card {
-  height: 100%;
-}
 .pagination {
   display: flex;
   justify-content: center;

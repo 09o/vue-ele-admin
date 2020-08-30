@@ -20,4 +20,7 @@ export default {
   margin: 0;
   padding: 0;
 }
+.box-card {
+  height: 100%;
+}
 </style>

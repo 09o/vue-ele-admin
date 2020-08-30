@@ -25,7 +25,16 @@ Vue.filter('fmtLevel', (val) => {
   return '一二三四五六七八九十'[parseInt(val)] + '级'
 })
 
-Vue.component(MyBread.name , MyBread)
+Vue.component(MyBread.name, MyBread)
+
+// 定义一个方法让点击button后其失去焦点
+Vue.prototype.$btnBlur = (e) => {
+  let target = e.target;
+  if (target.nodeName == "I" || target.nodeName == 'SPAN') {
+    target = e.target.parentNode;
+  }
+  target.blur();
+}
 
 new Vue({
   el: '#app',
