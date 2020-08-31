@@ -6,10 +6,10 @@
           <img src="../assets/logo.png" alt />
           <i :class="isCollapse ? 'el-icon-s-unfold' : 'el-icon-s-fold'" @click="setCollapse"></i>
         </el-col>
-        <el-col class="middle-title" :span="14">
+        <el-col class="middle-title" :span="12">
           <h3>Ve后台管理系统</h3>
         </el-col>
-        <el-col class="right-exit" :span="4">
+        <el-col class="right-exit" :span="6">
           <div class="grid-content bg-purple">
             <a href="javascript:;" @click.prevent="logout">
               <i class="el-icon-remove"></i>
@@ -22,7 +22,7 @@
     <el-container>
       <el-aside :width="isCollapse ? 'auto' : '200px'" class="aside">
         <el-menu
-          default-active="1-4-1"
+          default-active="1"
           class="el-menu-vertical-demo"
           :collapse="isCollapse"
           background-color="#eee"
@@ -30,16 +30,20 @@
           unique-opened
           router
         >
-          <el-submenu index="1">
+          <el-submenu :index="item.order.toString()" v-for="item in menus" :key="item.id">
             <template slot="title">
-              <i class="el-icon-user-solid"></i>
-              <span slot="title">用户管理</span>
+              <i v-if="item.order===1" class="el-icon-user-solid"></i>
+              <i v-if="item.order===2" class="el-icon-error"></i>
+              <i v-if="item.order===3" class="el-icon-s-goods"></i>
+              <i v-if="item.order===4" class="el-icon-s-order"></i>
+              <i v-if="item.order===5" class="el-icon-s-data"></i>
+              <span slot="title">{{ item.authName }}</span>
             </template>
-            <el-menu-item-group>
-              <el-menu-item index="users">用户列表</el-menu-item>
+            <el-menu-item-group v-for="item2 in item.children" :key="item2.id">
+              <el-menu-item :index="item2.path">{{ item2.authName }}</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
-          <el-submenu index="2">
+          <!-- <el-submenu index="2">
             <template slot="title">
               <i class="el-icon-error"></i>
               <span slot="title">权限管理</span>
@@ -77,7 +81,7 @@
             <el-menu-item-group>
               <el-menu-item index="5-1">统计信息</el-menu-item>
             </el-menu-item-group>
-          </el-submenu>
+          </el-submenu> -->
         </el-menu>
       </el-aside>
       <el-main class="main">
@@ -91,10 +95,17 @@
 export default {
   data() {
     return {
+      menus: [],
       isCollapse: false,
     };
   },
   methods: {
+    // 获取导航数据
+    async getMenus() {
+      const res = await this.$http.get('menus')
+      this.menus = res.data.data
+    },
+    // 左侧导航栏展开
     setCollapse() {
       this.isCollapse = !this.isCollapse;
     },
@@ -122,6 +133,9 @@ export default {
       this.$router.push("/login");
     }
   },
+  created() {
+    this.getMenus()
+  }
 };
 </script>
 
