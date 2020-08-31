@@ -11,15 +11,30 @@
         <template slot-scope="scope">
           <el-row v-for="item in scope.row.children" :key="item.id">
             <el-col :span="5">
-              <el-tag @close="deleteRight(scope.row.id, item.id)" type="danger" closable>{{ item.authName }}</el-tag><i class="el-icon-arrow-right"></i>
+              <el-tag
+                @close="deleteRight(scope.row, item.id)"
+                type="danger"
+                closable
+              >{{ item.authName }}</el-tag>
+              <i class="el-icon-arrow-right"></i>
             </el-col>
             <el-col :span="19">
               <el-row v-for="item2 in item.children" :key="item2.id">
                 <el-col :span="5">
-                  <el-tag @close="deleteRight(scope.row.id, item2.id)" type="success" closable>{{ item2.authName }}</el-tag><i class="el-icon-arrow-right"></i>
+                  <el-tag
+                    @close="deleteRight(scope.row, item2.id)"
+                    type="success"
+                    closable
+                  >{{ item2.authName }}</el-tag>
+                  <i class="el-icon-arrow-right"></i>
                 </el-col>
                 <el-col :span="19">
-                  <el-tag @close="deleteRight(scope.row.id, item3.id)" v-for="item3 in item2.children" :key="item3.id" closable>{{ item3.authName }}</el-tag>
+                  <el-tag
+                    @close="deleteRight(scope.row, item3.id)"
+                    v-for="item3 in item2.children"
+                    :key="item3.id"
+                    closable
+                  >{{ item3.authName }}</el-tag>
                 </el-col>
               </el-row>
             </el-col>
@@ -31,13 +46,28 @@
       <el-table-column prop="roleName" label="角色名称" width="180"></el-table-column>
       <el-table-column prop="roleDesc" label="角色描述" width="200"></el-table-column>
       <el-table-column label="操作">
-        <template>
-          <el-button size="mini" type="success" icon="el-icon-check" circle></el-button>
-          <el-button size="mini" type="warning" icon="el-icon-edit" circle></el-button>
-          <el-button size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+        <template slot-scope="scope">
+          <el-button @click="updateRole(scope.row)" size="mini" type="success">修改</el-button>
+          <el-button size="mini" type="warning">编辑</el-button>
+          <el-button size="mini" type="danger">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <!-- 修改权限 -->
+    <el-dialog title="修改权限" @close="clearUpdateData" :visible.sync="dialogFormVisibleUpdate">
+      <el-tree
+        :data="roleTree"
+        show-checkbox
+        node-key="id"
+        default-expand-all
+        :default-checked-keys="assignedRole"
+        :props="defaultProps"
+      ></el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleUpdate = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleUpdate = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -46,6 +76,13 @@ export default {
   data() {
     return {
       roleList: [],
+      roleTree: [],
+      assignedRole: [],
+      defaultProps: {
+        children: "children",
+        label: "authName",
+      },
+      dialogFormVisibleUpdate: false,
     };
   },
   methods: {
@@ -57,27 +94,47 @@ export default {
       this.roleList = res.data.data;
     },
     // 删除角色指定权限
-    async deleteRight(roleId, rightId) {
-      const res = await this.$http.delete(`roles/${roleId}/rights/${rightId}`)
-      console.log(res)
+    async deleteRight(role, rightId) {
+      const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
+      console.log(res);
       const {
-        meta: { msg, status }
-      } = res.data
+        data,
+        meta: { msg, status },
+      } = res.data;
       if (status === 200) {
         this.$message({
           message: msg,
-          type: 'success',
-          duration: 1500
-        })
-        this.getRoleList()
+          type: "success",
+          duration: 1500,
+        });
+        role.children = data;
+        // 会刷新整个表格
+        // this.getRoleList()
       } else {
         this.$message({
           message: msg,
-          type: 'warning',
-          duration: 1500
-        })
+          type: "warning",
+          duration: 1500,
+        });
       }
-    }
+    },
+    // 初始化权限表单
+    clearUpdateData() {
+      this.assignedRole = []
+    },
+    // 修改权限
+    async updateRole(roles) {
+      roles.children.forEach((r) => {
+        r.children.forEach((i) => {
+          i.children.forEach((c) => {
+            this.assignedRole.push(c.id);
+          });
+        });
+      });
+      this.dialogFormVisibleUpdate = true;
+      const res = await this.$http.get("rights/tree");
+      this.roleTree = res.data.data;
+    },
   },
   created() {
     this.getRoleList();
