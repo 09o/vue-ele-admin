@@ -54,7 +54,7 @@
       </el-table-column>
     </el-table>
     <!-- 修改权限 -->
-    <el-dialog title="修改权限" @close="clearUpdateData" :visible.sync="dialogFormVisibleUpdate">
+    <el-dialog title="修改权限" @closed="clearUpdateData" :visible.sync="dialogFormVisibleUpdate">
       <el-tree
         :data="roleTree"
         show-checkbox
@@ -62,10 +62,11 @@
         default-expand-all
         :default-checked-keys="assignedRole"
         :props="defaultProps"
+        ref="treeRole"
       ></el-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleUpdate = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleUpdate = false">确 定</el-button>
+        <el-button type="primary" @click="submitUpdateRights">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -78,6 +79,7 @@ export default {
       roleList: [],
       roleTree: [],
       assignedRole: [],
+      currentId: -1,
       defaultProps: {
         children: "children",
         label: "authName",
@@ -96,7 +98,7 @@ export default {
     // 删除角色指定权限
     async deleteRight(role, rightId) {
       const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
-      console.log(res);
+      // console.log(res);
       const {
         data,
         meta: { msg, status },
@@ -120,10 +122,15 @@ export default {
     },
     // 初始化权限表单
     clearUpdateData() {
-      this.assignedRole = []
+      this.assignedRole = [];
     },
     // 修改权限
     async updateRole(roles) {
+      this.currentId = roles.id;
+      // 获取树形结构权限
+      const { data } = await this.$http.get("rights/tree");
+      this.roleTree = data.data;
+      // 获取已经授权选项id
       roles.children.forEach((r) => {
         r.children.forEach((i) => {
           i.children.forEach((c) => {
@@ -132,8 +139,35 @@ export default {
         });
       });
       this.dialogFormVisibleUpdate = true;
-      const res = await this.$http.get("rights/tree");
-      this.roleTree = res.data.data;
+    },
+    // 提交权限修改结果
+    async submitUpdateRights() {
+      this.dialogFormVisibleUpdate = false;
+      // eUI文档提供的方法
+      const node1 = this.$refs.treeRole.getCheckedKeys()
+      const node2 = this.$refs.treeRole.getHalfCheckedKeys()
+      const allKeys = [...node1, ...node2]
+      const checkedRight = allKeys.join(",");
+      const res = await this.$http.post(`roles/${this.currentId}/rights`, {
+        rids: checkedRight,
+      });
+      const {
+        meta: { msg, status }
+      } = res.data
+      if (status === 200) {
+        this.$message({
+          message: msg,
+          type: 'success',
+          duration: 1500
+        })
+        this.getRoleList()
+      } else {
+        this.$message({
+          message: msg,
+          type: 'warning',
+          duration: 2000
+        })
+      }
     },
   },
   created() {
