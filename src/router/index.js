@@ -24,6 +24,21 @@ const router = new VueRouter({
           path: 'roles',
           name: 'roles',
           component: () => import('../components/rights/Roles')
+        },
+        {
+          path: 'goods',
+          name: 'goods',
+          component: () => import('../components/goods/Goods')
+        },
+        {
+          path: 'params',
+          name: 'goodsParams',
+          component: () => import('../components/goods/Params')
+        },
+        {
+          path: 'categories',
+          name: 'categories',
+          component: () => import('../components/goods/Categories')
         }
       ]
     },
