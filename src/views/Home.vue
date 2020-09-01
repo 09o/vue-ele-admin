@@ -125,14 +125,14 @@ export default {
     },
   },
   // 进入首页的验证
-  beforeCreate() {
-    // 获取token
-    const token = localStorage.getItem("token");
-    // 如果有token，继续渲染组件
-    if (!token) {
-      this.$router.push("/login");
-    }
-  },
+  // beforeCreate() {
+  //   // 获取token
+  //   const token = localStorage.getItem("token");
+  //   // 如果有token，继续渲染组件
+  //   if (!token) {
+  //     this.$router.push("/login");
+  //   }
+  // },
   created() {
     this.getMenus()
   }

@@ -5,7 +5,7 @@
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item>用户管理</el-breadcrumb-item>
         <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-      </el-breadcrumb> -->
+      </el-breadcrumb>-->
       <my-bread level1="用户管理" level2="用户列表"></my-bread>
       <el-row class="searchRow">
         <el-col>
@@ -413,7 +413,7 @@ export default {
     // 提交分配
     submitAssign(uid) {
       this.$http.put(`users/${uid}/role`, {
-        rid: this.currentRoleId
+        rid: this.currentRoleId,
       });
       this.dialogFormVisibleAssign = false;
     },
