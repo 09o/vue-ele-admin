@@ -76,7 +76,21 @@
           </el-form-item>
           <el-button type="primary" @click="next">下一步</el-button>
         </el-tab-pane>
-        <el-tab-pane name="3" label="商品图片">商品图片</el-tab-pane>
+        <el-tab-pane name="3" label="商品图片">
+          <el-form-item label-width="0">
+            <el-upload
+              class="upload-demo"
+              action="http://127.0.0.1:8888/api/private/v1/upload"
+              :headers="header"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              list-type="picture"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </el-form-item>
+        </el-tab-pane>
         <el-tab-pane name="4" label="商品内容">商品内容</el-tab-pane>
       </el-tabs>
     </el-form>
@@ -102,6 +116,10 @@ export default {
       attr: [],
       // 静态参数
       attrOnly: [],
+      // 上传图片的请求头部
+      header: {
+        Authorization: localStorage.getItem('token')
+      },
       goodsInfo: {
         goods_name: "",
         goods_cat: [],
@@ -143,7 +161,6 @@ export default {
         }
         +this.activeTab++;
         this.activeTab = this.activeTab.toString();
-        console.log(this.attr);
       } else {
         this.$message.warning("请先选择商品分类");
       }
@@ -157,6 +174,13 @@ export default {
           this.$message.warning("请先选择商品分类");
         }
       }
+    },
+    // 图片上传的一些方法
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
     },
     handleChange() {},
   },
