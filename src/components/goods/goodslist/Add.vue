@@ -79,26 +79,41 @@
         <el-tab-pane name="3" label="商品图片">
           <el-form-item label-width="0">
             <el-upload
-              class="upload-demo"
               action="http://127.0.0.1:8888/api/private/v1/upload"
               :headers="header"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
               list-type="picture"
+              style="padding: 0 0 20px;"
             >
               <el-button size="small" type="primary">点击上传</el-button>
-              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
+            <el-divider>
+              <el-button type="primary" @click="next">下一步</el-button>
+            </el-divider>
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane name="4" label="商品内容">商品内容</el-tab-pane>
+        <el-tab-pane name="4" label="商品内容">
+          <el-form-item label="商品描述">
+            <quill-editor style="height: 300px"></quill-editor>
+          </el-form-item>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
   </el-card>
 </template>
 
 <script>
+// 引入富文本工具
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
+import "quill/dist/quill.bubble.css";
+
+import { quillEditor } from "vue-quill-editor";
 export default {
+  components: {
+    quillEditor,
+  },
   data() {
     return {
       activeTab: 0,
@@ -118,7 +133,7 @@ export default {
       attrOnly: [],
       // 上传图片的请求头部
       header: {
-        Authorization: localStorage.getItem('token')
+        Authorization: localStorage.getItem("token"),
       },
       goodsInfo: {
         goods_name: "",
