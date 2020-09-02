@@ -8,7 +8,12 @@
       <el-step title="商品图片"></el-step>
       <el-step title="商品内容"></el-step>
     </el-steps>
-    <el-form label-position="left" label-width="80px" :model="goodsInfo">
+    <el-form
+      label-position="left"
+      label-width="80px"
+      :model="goodsInfo"
+      style="height: 450px; overflow: auto;"
+    >
       <el-tabs
         @tab-click="tabChange"
         v-model="activeTab"
@@ -45,13 +50,32 @@
         <el-tab-pane name="1" label="商品参数">
           <div v-if="attr.length!==0">
             <el-form-item v-for="item in attr" :key="item.attr_id" :label="item.attr_name">
-              <el-checkbox v-for="(val,i) in item.attr_vals.split(',')" :key="i" :label="val" border size="medium"></el-checkbox>
+              <el-checkbox-group v-model="checkdAttr">
+                <el-checkbox
+                  v-for="(val,i) in item.attr_vals.split(',')"
+                  :key="i"
+                  :label="val"
+                  border
+                  size="medium"
+                ></el-checkbox>
+              </el-checkbox-group>
             </el-form-item>
           </div>
+          <!-- 无参数可用时显示状态 -->
           <div v-else style="margin: 10px 0;">{{ '该商品无可用参数可选' }}</div>
           <el-button type="primary" @click="next">下一步</el-button>
         </el-tab-pane>
-        <el-tab-pane name="2" label="商品属性">商品属性</el-tab-pane>
+        <el-tab-pane name="2" label="商品属性">
+          <el-form-item
+            v-for="item in attrOnly"
+            :key="item.attr_id"
+            :label="item.attr_name"
+            label-width="150px"
+          >
+            <el-input v-model="item.attr_vals" class="attrOnlyInput"></el-input>
+          </el-form-item>
+          <el-button type="primary" @click="next">下一步</el-button>
+        </el-tab-pane>
         <el-tab-pane name="3" label="商品图片">商品图片</el-tab-pane>
         <el-tab-pane name="4" label="商品内容">商品内容</el-tab-pane>
       </el-tabs>
@@ -64,14 +88,20 @@ export default {
   data() {
     return {
       activeTab: 0,
+      // 已选分类
       selectedValue: [],
       goodsCategories: [],
+      // 勾选的参数
+      checkdAttr: [],
       defaultProps: {
         value: "cat_id",
         label: "cat_name",
         children: "children",
       },
+      // 动态参数
       attr: [],
+      // 静态参数
+      attrOnly: [],
       goodsInfo: {
         goods_name: "",
         goods_cat: [],
@@ -93,17 +123,26 @@ export default {
       const res = await this.$http.get("categories");
       this.goodsCategories = res.data.data;
     },
+    // 下一步操作
     async next() {
       const value = this.selectedValue;
       if (value.length !== 0) {
-        // 获取参数列表信息
-        const res = await this.$http.get(
-          `categories/${value[value.length - 1]}/attributes?sel=many`
-        );
-        this.attr = res.data.data;
+        // 获取动态参数列表信息
+        if (this.activeTab == 0) {
+          const res = await this.$http.get(
+            `categories/${value[value.length - 1]}/attributes?sel=many`
+          );
+          this.attr = res.data.data;
+        } else if (this.activeTab == 1) {
+          const res = await this.$http.get(
+            `categories/${value[value.length - 1]}/attributes?sel=only`
+          );
+          this.attrOnly = res.data.data;
+          console.log(res);
+          // this.attrOnly = res.data.data;
+        }
         +this.activeTab++;
         this.activeTab = this.activeTab.toString();
-        console.log(res.data.data);
         console.log(this.attr);
       } else {
         this.$message.warning("请先选择商品分类");
@@ -111,9 +150,10 @@ export default {
     },
     // 切换商品参数tab时判断上一步是否完成
     tabChange() {
-      if (this.activeTab == 1) {
+      if (this.activeTab == 1 || this.activeTab == 2) {
         if (this.selectedValue.length === 0) {
           this.activeTab = "0";
+          this.attr = [];
           this.$message.warning("请先选择商品分类");
         }
       }
