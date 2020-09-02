@@ -28,7 +28,12 @@ const router = new VueRouter({
         {
           path: 'goods',
           name: 'goods',
-          component: () => import('../components/goods/Goods')
+          component: () => import('../components/goods/goodslist/Goods'),
+        },
+        {
+          path: 'addgoods',
+          name: 'addgoods',
+          component: () => import('../components/goods/goodslist/Add')
         },
         {
           path: 'params',
