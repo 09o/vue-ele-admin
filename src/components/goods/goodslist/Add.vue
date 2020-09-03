@@ -12,7 +12,7 @@
       label-position="left"
       label-width="80px"
       :model="goodsInfo"
-      style="height: 450px; overflow: auto;"
+      style="height: 450px; overflow: auto; position: relative;"
     >
       <el-tabs
         @tab-click="tabChange"
@@ -21,16 +21,16 @@
         style="margin: 20px 0;"
       >
         <el-tab-pane name="0" label="基本信息">
-          <el-form-item label="商品名称">
+          <el-form-item label="名称">
             <el-input v-model="goodsInfo.goods_name"></el-input>
           </el-form-item>
-          <el-form-item label="商品价格">
+          <el-form-item label="价格">
             <el-input v-model="goodsInfo.goods_price"></el-input>
           </el-form-item>
-          <el-form-item label="商品重量">
+          <el-form-item label="重量">
             <el-input v-model="goodsInfo.goods_weight"></el-input>
           </el-form-item>
-          <el-form-item label="商品数量">
+          <el-form-item label="数量">
             <el-input v-model="goodsInfo.goods_number"></el-input>
           </el-form-item>
           <el-form-item label="商品分类">
@@ -39,7 +39,6 @@
                 v-model="selectedValue"
                 :props="defaultProps"
                 :options="goodsCategories"
-                @change="handleChange"
                 :show-all-levels="false"
                 clearable
               ></el-cascader>
@@ -81,7 +80,7 @@
             <el-upload
               action="http://127.0.0.1:8888/api/private/v1/upload"
               :headers="header"
-              :on-preview="handlePreview"
+              :on-success="handleSuccess"
               :on-remove="handleRemove"
               list-type="picture"
               style="padding: 0 0 20px;"
@@ -95,10 +94,16 @@
         </el-tab-pane>
         <el-tab-pane name="4" label="商品内容">
           <el-form-item label="商品描述">
-            <quill-editor style="height: 300px"></quill-editor>
+            <quill-editor v-model="goodsInfo.goods_introduce"></quill-editor>
           </el-form-item>
         </el-tab-pane>
       </el-tabs>
+      <el-button
+        v-show="activeTab == 4"
+        type="success"
+        @click="submitAddGoods"
+        class="submitAddBtn"
+      >提交</el-button>
     </el-form>
   </el-card>
 </template>
@@ -137,13 +142,13 @@ export default {
       },
       goodsInfo: {
         goods_name: "",
-        goods_cat: [],
+        goods_cat: "",
         goods_price: "",
         goods_number: "",
         goods_weight: "",
         goods_introduce: "",
-        pics: "",
-        attrs: "",
+        pics: [],
+        attrs: [],
       },
     };
   },
@@ -171,7 +176,7 @@ export default {
             `categories/${value[value.length - 1]}/attributes?sel=only`
           );
           this.attrOnly = res.data.data;
-          console.log(res);
+          // console.log(res);
           // this.attrOnly = res.data.data;
         }
         +this.activeTab++;
@@ -191,13 +196,46 @@ export default {
       }
     },
     // 图片上传的一些方法
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
+    handleRemove(file) {
+      // console.log(file);
+      const idx = this.goodsInfo.pics.findIndex((item) => {
+        return item.pic === file.response.data.tmp_path;
+      });
+      this.goodsInfo.pics.splice(idx, 1);
+      // console.log(this.goodsInfo)
     },
-    handlePreview(file) {
-      console.log(file);
+    handleSuccess(file) {
+      // console.log(file);
+      // this.goodsInfo.pics = []
+      this.goodsInfo.pics.push({ pic: file.data.tmp_path });
+      // console.log(this.goodsInfo);
     },
-    handleChange() {},
+    // 提交添加商品信息
+    async submitAddGoods() {
+      // goods_cat  以为','分割的分类列表
+      this.goodsInfo.goods_cat = this.selectedValue.join(",");
+      // pics  上传的图片临时路径（对象）
+      const res = await this.$http.post("goods", this.goodsInfo);
+      const {
+        data,
+        meta: { msg, status },
+      } = res.data;
+      if (status === 201) {
+        this.$message({
+          type: "success",
+          message: msg,
+          duration: 1500,
+        });
+        this.$router.push({ name: "goods" });
+      } else {
+        this.$message({
+          type: "warning",
+          message: msg,
+          duration: 1500,
+        });
+      }
+      // console.log(res);
+    },
   },
   created() {
     this.getCategories();
@@ -205,8 +243,16 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .pageheader {
   margin: 10px 0;
+}
+.ql-editor {
+  height: 300px;
+}
+.submitAddBtn {
+  position: absolute;
+  right: 10px;
+  bottom: 20px;
 }
 </style>
