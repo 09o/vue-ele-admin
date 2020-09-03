@@ -48,8 +48,13 @@
         </el-tab-pane>
         <el-tab-pane name="1" label="商品参数">
           <div v-if="attr.length!==0">
-            <el-form-item v-for="item in attr" :key="item.attr_id" :label="item.attr_name">
-              <el-checkbox-group v-model="checkdAttr">
+            <el-form-item
+              label-width="100px"
+              v-for="item in attr"
+              :key="item.attr_id"
+              :label="item.attr_name"
+            >
+              <el-checkbox-group v-model="checkdAttr" @change="checkboxUpdate(item.attr_id)">
                 <el-checkbox
                   v-for="(val,i) in item.attr_vals.split(',')"
                   :key="i"
@@ -127,6 +132,7 @@ export default {
       goodsCategories: [],
       // 勾选的参数
       checkdAttr: [],
+      attrId: -1,
       defaultProps: {
         value: "cat_id",
         label: "cat_name",
@@ -176,8 +182,6 @@ export default {
             `categories/${value[value.length - 1]}/attributes?sel=only`
           );
           this.attrOnly = res.data.data;
-          // console.log(res);
-          // this.attrOnly = res.data.data;
         }
         +this.activeTab++;
         this.activeTab = this.activeTab.toString();
@@ -195,25 +199,38 @@ export default {
         }
       }
     },
+    // 参数选择勾选取消触发事件
+    checkboxUpdate(id) {
+      this.attrId = id;
+    },
     // 图片上传的一些方法
     handleRemove(file) {
-      // console.log(file);
       const idx = this.goodsInfo.pics.findIndex((item) => {
         return item.pic === file.response.data.tmp_path;
       });
       this.goodsInfo.pics.splice(idx, 1);
-      // console.log(this.goodsInfo)
     },
     handleSuccess(file) {
-      // console.log(file);
-      // this.goodsInfo.pics = []
       this.goodsInfo.pics.push({ pic: file.data.tmp_path });
-      // console.log(this.goodsInfo);
     },
     // 提交添加商品信息
     async submitAddGoods() {
       // goods_cat  以为','分割的分类列表
       this.goodsInfo.goods_cat = this.selectedValue.join(",");
+      if (this.checkdAttr.length > 0) {
+        const attrManyValue = this.checkdAttr.join(",");
+        const attrMany = {
+          attr_id: this.attrId,
+          attr_value: attrManyValue,
+        };
+        const attrOnlyList = this.attrOnly.map((item) => {
+          return {
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals
+          }
+        });
+        this.goodsInfo.attrs = [attrMany, ...attrOnlyList];
+      }
       // pics  上传的图片临时路径（对象）
       const res = await this.$http.post("goods", this.goodsInfo);
       const {
@@ -234,7 +251,6 @@ export default {
           duration: 1500,
         });
       }
-      // console.log(res);
     },
   },
   created() {
