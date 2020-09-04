@@ -46,7 +46,17 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="静态参数" name="second">静态参数</el-tab-pane>
+      <el-tab-pane label="静态参数" name="second">
+        <el-table :data="attrOnly" height="350px" style="width: 100%">
+          <el-table-column type="index" label="#" width="50"></el-table-column>
+          <el-table-column prop="attr_name" label="属性名称"></el-table-column>
+          <el-table-column prop="attr_vals" label="属性参数"></el-table-column>
+          <el-table-column label="操作">
+            <el-button size="mini" plain type="success" icon="el-icon-edit">编辑</el-button>
+            <el-button size="mini" plain type="danger" icon="el-icon-delete">删除</el-button>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -104,6 +114,9 @@ export default {
       this.getAttrOnly();
     },
     handleClick() {},
+    // ####           note          ####
+    // #### 由于数据库中未给定编辑权限 ####
+    // ####      该操作请求不可用     ####
     async handleClose(arr, tag) {
       arr.attr_vals.splice(arr.attr_vals.indexOf(tag), 1);
       const res = await this.$http.put(
@@ -131,7 +144,6 @@ export default {
       const flag = arr.some((im) => {
         return im === inputValue;
       });
-      console.log(flag);
       if (inputValue && !flag) {
         arr.push(inputValue);
         this.inputVisible = false;
