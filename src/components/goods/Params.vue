@@ -24,7 +24,7 @@
             <template slot-scope="scope">
               <el-tag
                 closable
-                @close="handleClose(scope.row.attr_vals, item)"
+                @close="handleClose(scope.row, item)"
                 v-for="item in scope.row.attr_vals"
                 :key="item"
               >{{ item }}</el-tag>
@@ -104,8 +104,19 @@ export default {
       this.getAttrOnly();
     },
     handleClick() {},
-    handleClose(arr, tag) {
-      arr.splice(arr.indexOf(tag), 1);
+    async handleClose(arr, tag) {
+      arr.attr_vals.splice(arr.attr_vals.indexOf(tag), 1);
+      const res = await this.$http.put(
+        `categories/${
+          this.selectedValue[this.selectedValue.length - 1]
+        }/attributes/${arr.attr_id}`,
+        {
+          attr_name: arr.attr_name,
+          attr_sel: "many",
+          attr_vals: arr.attr_vals.join(","),
+        }
+      );
+      console.log(res);
     },
     showInput() {
       this.inputVisible = true;
@@ -118,15 +129,15 @@ export default {
       let inputValue = this.inputValue;
       // 用于判断新输入的参数是否已经存在
       const flag = arr.some((im) => {
-        return im === inputValue
+        return im === inputValue;
       });
-      console.log(flag)
+      console.log(flag);
       if (inputValue && !flag) {
         arr.push(inputValue);
         this.inputVisible = false;
         this.inputValue = "";
       } else {
-        this.$message.error('该参数已经存在')
+        this.$message.error("该参数已经存在");
       }
     },
   },
