@@ -6,7 +6,7 @@
 
 + 项目使用到技术有：vue, vue-router, axios, sass(少量代码涉及)
 + 该项目展示的是前端代码，后端接口及其源码请访问[后台管理api接口](https://gitee.com/wBekvam/vueShop-api-server.git)获取。
-*~如果有关于接口方面相关的疑问，欢迎在这里提出，我会尽力帮你解决~*
+*如果有关于接口方面相关的疑问，欢迎在这里提出，我会尽力帮你解决*
 
 ## Build Setup
 
