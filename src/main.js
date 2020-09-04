@@ -5,6 +5,9 @@ import 'element-ui/lib/theme-chalk/index.css'
 import router from './router'
 import MyHttpServer from './plugins/http'
 import Moment from 'moment'
+var ElTreeGrid = require('element-tree-grid');
+Vue.component(ElTreeGrid.name, ElTreeGrid);
+
 // 将面包屑组件用于全局
 import MyBread from './components/custom/Bread'
 
