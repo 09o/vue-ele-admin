@@ -185,9 +185,4 @@ export default {
 </script>
 
 <style scoped>
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0 0;
-}
 </style>

@@ -83,9 +83,4 @@ export default {
 .inputSearch {
   width: 300px;
 }
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0 0;
-}
 </style>

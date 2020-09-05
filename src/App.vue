@@ -6,13 +6,11 @@
 
 <script>
 export default {
-  name: 'app',
-  data () {
-    return {
-      
-    }
-  }
-}
+  name: "app",
+  data() {
+    return {};
+  },
+};
 </script>
 
 <style lang="scss">
@@ -22,5 +20,10 @@ export default {
 }
 .box-card {
   height: 100%;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 0;
 }
 </style>
