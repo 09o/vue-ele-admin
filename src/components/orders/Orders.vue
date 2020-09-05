@@ -38,6 +38,14 @@
     ></el-pagination>
     <el-dialog title="修改订单地址" :visible.sync="dialogFormVisible" width="500px">
       <el-form :model="form" label-position="right" label-width="80px">
+        <el-form-item label="城市">
+          <el-cascader
+            clearable
+            :options="options"
+            v-model="selectedOptions"
+            @change="handleChange"
+          ></el-cascader>
+        </el-form-item>
         <el-form-item label="详细地址">
           <el-input v-model="form.address" autocomplate="off"></el-input>
         </el-form-item>
@@ -51,6 +59,15 @@
 </template>
 
 <script>
+// 引用中国省市区级联数据
+import {
+  provinceAndCityData,
+  regionData,
+  provinceAndCityDataPlus,
+  regionDataPlus,
+  CodeToText,
+  TextToCode,
+} from "element-china-area-data";
 export default {
   data() {
     return {
@@ -59,8 +76,13 @@ export default {
       pagesize: 5,
       total: 0,
       ordersData: [],
-      form: {},
+      form: {
+        address: "",
+      },
       dialogFormVisible: false,
+      options: regionData,
+      selectedOptions: [],
+      selectedOptionsToText: [],
     };
   },
   methods: {
@@ -84,6 +106,12 @@ export default {
     editOrder(e) {
       this.$btnBlur(e);
       this.dialogFormVisible = true;
+    },
+    handleChange() {
+      this.selectedOptionsToText = [];
+      this.selectedOptions.forEach((item) => {
+        return this.selectedOptionsToText.push(CodeToText[item]);
+      });
     },
   },
   created() {
